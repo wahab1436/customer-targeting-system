@@ -1,0 +1,77 @@
+data:
+  n_customers: 10000
+  random_seed: 42
+  treatment_rate: 0.20
+  output_path: data/raw/telecom_customers.csv
+
+features:
+  target_column: churn
+  treatment_column: received_offer
+  id_column: customer_id
+  categorical_columns:
+    - region
+    - package_type
+  numeric_columns:
+    - tenure
+    - monthly_usage_mb
+    - recharge_amount
+    - complaints_count
+    - last_activity_days
+    - usage_trend_30d
+    - recharge_freq_30d
+    - usage_per_rupee
+    - complaints_x_tenure
+  drop_columns:
+    - customer_id
+    - received_offer
+    - churn
+
+churn_model:
+  xgboost:
+    n_estimators: 300
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    use_label_encoder: false
+    eval_metric: logloss
+    random_state: 42
+  lightgbm:
+    n_estimators: 300
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    random_state: 42
+  cv_folds: 5
+  smote_random_state: 42
+  artifact_path: models/artifacts/churn_model.pkl
+  lgbm_artifact_path: models/artifacts/lgbm_model.pkl
+  threshold: 0.5
+
+uplift_model:
+  artifact_path_T: models/artifacts/uplift_model_T.pkl
+  artifact_path_C: models/artifacts/uplift_model_C.pkl
+  scores_path: data/raw/uplift_scores.csv
+  persuadable_threshold: 0.05
+  sleeping_dog_threshold: -0.02
+  xgboost:
+    n_estimators: 200
+    max_depth: 5
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    use_label_encoder: false
+    eval_metric: logloss
+    random_state: 42
+
+optimization:
+  default_budget: 50000
+  default_cost_per_contact: 100
+  min_budget: 10000
+  max_budget: 500000
+  avg_customer_ltv: 5000
+
+report:
+  output_path: reports/executive_report.pdf
+  company_name: TeleConnect Pakistan
